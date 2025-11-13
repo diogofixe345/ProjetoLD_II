@@ -1,5 +1,3 @@
-// Tasks.jsx
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { Card, Button, Callout } from '@tremor/react';
 import TaskForm from './TaskForm'; 
@@ -26,7 +24,7 @@ function Tasks() {
         setLoading(true);
         try {
             const res = await fetch('http://localhost:3000/tarefas', {
-                credentials: 'include' // Essencial para o cookie
+                credentials: 'include'
             });
             const data = await res.json();
             setTarefas(data);
@@ -56,7 +54,7 @@ function Tasks() {
             const response = await fetch(`http://localhost:3000/tarefas/${id}/estado`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include', // Essencial para o cookie
+                credentials: 'include',
                 body: JSON.stringify({ novoEstado }),
             });
 
@@ -71,15 +69,35 @@ function Tasks() {
         }
     };
 
+    const eliminarTarefa = async (id) => {
+        if (!window.confirm("Tem a certeza que quer eliminar esta tarefa?")) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3000/tarefas/${id}`, {
+                method: 'DELETE',
+                credentials: 'include', 
+            });
+
+            if (response.ok) {
+                setTarefas(tarefas.filter(t => t.Id !== id));
+            } else {
+                const errorData = await response.json();
+                alert(`Erro ao eliminar tarefa: ${errorData.message}`);
+            }
+        } catch (error) {
+            console.error("Erro de rede ao eliminar tarefa:", error);
+        }
+    };
+
     const colunas = ['ToDo', 'Doing', 'Done'];
     const isGestor = currentUser && currentUser.Papel === 'Gestor';
-    {isGestor && (
-     <TaskForm onTaskCreated={fetchTarefas} gestorId={currentUser.Id} />
-)}
     if (loading) return <p className="text-center mt-10">A carregar tarefas...</p>;
 
     return (
         <div className="container mx-auto p-4">
+
             <h1 className="text-3xl font-bold text-center mt-10 mb-8">Kanban de Tarefas</h1>
             
             <div className="flex justify-between space-x-4">
@@ -94,7 +112,9 @@ function Tasks() {
                         {tarefas.filter(t => t.EstadoAtual === coluna).map(t => (
                             <Card key={t.Id} className="mb-4 p-3 shadow-md border-t-4 border-blue-500">
                                 <p className="text-lg font-bold">{t.Descricao}</p>
-                                <p className="text-sm text-gray-600">Prog.: {t.NomeProgramador} | Tipo: {t.Tipo}</p>
+                                <p className="text-sm text-gray-600">Programador: {t.NomeProgramador} | Tipo: {t.Tipo}</p>
+                                <p>Data de Inicio Prevista: {t.DataPrevistaInicio.slice(0, 10).split('-').reverse().join('/')}</p>
+                                <p>Data Fim Prevista: {t.DataPrevistaFim.slice(0, 10).split('-').reverse().join('/')}</p>
                                 <p className="text-xs text-gray-500">SP: {t.StoryPoints}</p>
                                 
                                 {(coluna === 'ToDo' || coluna === 'Doing') && (
@@ -105,6 +125,16 @@ function Tasks() {
                                         size="xs"
                                     >
                                         Mover para {coluna === 'ToDo' ? 'Doing' : 'Done'}
+                                    </Button>
+                                )}
+                                {coluna === 'Done' && isGestor && (
+                                    <Button
+                                        onClick={() => eliminarTarefa(t.Id)}
+                                        className="mt-3 w-full"
+                                        color="red"
+                                        size="xs"
+                                    >
+                                        Eliminar Tarefa
                                     </Button>
                                 )}
                             </Card>

@@ -1,5 +1,3 @@
-// Login.jsx
-
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { TextInput, Button, Callout } from '@tremor/react';
@@ -40,7 +38,7 @@ function Login() {
             const response = await fetch('http://localhost:3000/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include', // Inclui credenciais para receber o cookie de sessão
+                credentials: 'include',
                 body: JSON.stringify({ Username, Password }),
             });
             

@@ -1,15 +1,12 @@
-// Register.jsx (Atualizado)
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextInput, Button, Callout, Select, SelectItem } from '@tremor/react';
-//                                                 ^^^^^^^^^^^^^ NOVAS IMPORTAÇÕES
 
 function Register() {
   const [Nome, setNome] = useState('');
   const [Username, setUsername] = useState('');
   const [Password, setPassword] = useState('');
-  const [Papel, setPapel] = useState('Programador'); // 🔑 NOVO ESTADO: Papel (Padrão: Programador)
+  const [Papel, setPapel] = useState('Programador');
   const [error, setError] = useState('');
   const [emptyFieldsError, setEmptyFieldsError] = useState(false);
   const [PasswordError, setPasswordError] = useState('');
@@ -41,7 +38,6 @@ function Register() {
     setPasswordError('');
     setError('');
 
-    // Adiciona o Papel à validação de campos vazios, se aplicável
     if (!Nome || !Username || !Password || !Papel) {
       setEmptyFieldsError(true);
       return;
@@ -59,14 +55,12 @@ function Register() {
         headers: {
           'Content-Type': 'application/json',
         },
-        // 🔑 INCLUIR O PAPEL NO CORPO DA REQUISIÇÃO
         body: JSON.stringify({ Nome, Username, Password, Papel }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Se o registo for bem-sucedido, redireciona para a página principal
         navigate('/');
       } else {
         setError(data.message || 'Erro no registo.');
@@ -82,7 +76,6 @@ function Register() {
       <div className='mt-14 mx-96'>
         <h2 className='mb-9 text-4xl'>Registo</h2>
 
-        {/* Campo Nome */}
         <div className='mb-1.5'>
           <label htmlFor="nome">Nome <span className="text-red-500">*</span></label>
         </div>
@@ -98,7 +91,6 @@ function Register() {
           </Callout>
         )}
 
-        {/* Campo Username */}
         <div className='mt-3 mb-1.5'>
           <label htmlFor="username">Username <span className="text-red-500">*</span></label>
         </div>
@@ -114,7 +106,6 @@ function Register() {
           </Callout>
         )}
 
-        {/* 🔑 NOVO CAMPO: SELECÇÃO DE PAPEL */}
         <div className='mt-3 mb-1.5'>
           <label htmlFor="papel">Registar como <span className="text-red-500">*</span></label>
         </div>
@@ -129,7 +120,6 @@ function Register() {
         </Select>
 
 
-        {/* Campo Password */}
         <div className='mt-3 mb-1.5'>
           <label htmlFor="password">Password <span className="text-red-500">*</span></label>
         </div>

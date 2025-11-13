@@ -21,14 +21,17 @@ const Navbar = () => {
 
           <div className="hidden md:flex items-center space-x-10">
             {isLoggedIn ? (
+              <div className='flex items-center gap-11'>
+              <a href="/taskform" className="text-white text-lg transition duration-300 hover:text-gray-300">Criar Tarefa</a>
               <div className="flex items-center ">
                 <Link to={'/conta'}> 
                   <img
-                    src=""
+                    src="./src/images/profile_image.jpg"
                     alt="Conta"
                     className="h-10 w-10 rounded-full"
                   />
                 </Link>
+              </div>
               </div>
             ) : (
               <>
