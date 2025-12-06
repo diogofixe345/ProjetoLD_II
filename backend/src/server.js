@@ -248,6 +248,52 @@ app.delete("/tarefas/:id", verificarAutenticacao, verificarGestor, (req, res) =>
     });
 });
 
+
+// 1. Rota para obter uma tarefa específica pelo ID (para preencher o formulário de edição)
+app.get("/tarefas/:id", verificarAutenticacao, (req, res) => {
+    const { id } = req.params;
+    const sql = "SELECT * FROM Tarefa WHERE Id = ?";
+    
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error("Erro ao obter tarefa:", err);
+            return res.status(500).json({ message: "Erro ao obter tarefa." });
+        }
+        if (result.length === 0) {
+            return res.status(404).json({ message: "Tarefa não encontrada." });
+        }
+        res.json(result[0]);
+    });
+});
+
+// 2. Rota para atualizar os dados da tarefa (PUT)
+app.put("/tarefas/:id", verificarAutenticacao, verificarGestor, (req, res) => {
+    const { id } = req.params;
+    const { Descricao, IdProgramador, OrdemExecucao, DataPrevistaInicio, DataPrevistaFim, IdTipoTarefa, StoryPoints } = req.body;
+
+    const sql = `
+        UPDATE Tarefa 
+        SET Descricao = ?, 
+            IdProgramador = ?, 
+            OrdemExecucao = ?, 
+            DataPrevistaInicio = ?, 
+            DataPrevistaFim = ?, 
+            IdTipoTarefa = ?, 
+            StoryPoints = ?
+        WHERE Id = ?
+    `;
+
+    const values = [Descricao, IdProgramador, OrdemExecucao, DataPrevistaInicio, DataPrevistaFim, IdTipoTarefa, StoryPoints, id];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error("Erro ao atualizar tarefa:", err);
+            return res.status(500).json({ message: "Erro ao atualizar tarefa." });
+        }
+        res.json({ message: "Tarefa atualizada com sucesso." });
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Servidor à escuta na porta ${PORT}`);
 });

@@ -12,7 +12,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className=" bg-yellow-500 fixed z-50 h-[60px] content-center w-full">
+    <nav className=" bg-gray-700 fixed z-50 h-[60px] content-center w-full">
       <div className="mx-12">
         <div className="flex justify-between items-center">
           <div className="flex items-center">

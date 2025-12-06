@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Card, Button, Callout } from '@tremor/react';
 import TaskForm from './TaskForm'; 
+import { useNavigate } from 'react-router-dom'; 
 
 const getLoggedInUser = () => {
     const userStr = localStorage.getItem('utilizador');
@@ -19,6 +20,7 @@ function Tasks() {
     const [tarefas, setTarefas] = useState([]);
     const [currentUser, setCurrentUser] = useState(getLoggedInUser());
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();     
 
     const fetchTarefas = useCallback(async () => {
         setLoading(true);
@@ -121,11 +123,21 @@ function Tasks() {
                                     <Button
                                         onClick={() => moverTarefa(t.Id, coluna)}
                                         className="mt-3 w-full"
-                                        color={coluna === 'ToDo' ? 'yellow' : 'green'}
-                                        size="xs"
+                                        color={coluna === 'ToDo' ? 'blue' : 'green'}
+                                        size="xs" 
                                     >
                                         Mover para {coluna === 'ToDo' ? 'Doing' : 'Done'}
                                     </Button>
+                                )}
+                                {isGestor && (
+                                    <Button
+                                         onClick={() => navigate(`/edittask/${t.Id}`)}
+                                         className="w-1/2"
+                                         color="blue"
+                                         size="xs"
+                                     >
+                                       Editar
+                                     </Button>
                                 )}
                                 {coluna === 'Done' && isGestor && (
                                     <Button

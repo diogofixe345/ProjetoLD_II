@@ -8,6 +8,7 @@ import Navbar from './pages/Navbar';
 import Conta from './pages/Conta';
 import Tasks from './pages/Tasks';
 import TaskForm from './pages/TaskForm';
+import EditTask from './pages/EditTask';
 import './index.css'
 
 const root = document.getElementById('root');
@@ -25,6 +26,7 @@ rootElement.render(
         <Route path='/conta' element={<Conta/>}/>
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/taskform" element={<TaskForm />} />
+         <Route path="/edittask/:id" element={<EditTask />} />
       </Routes>
     </Router>
   </React.StrictMode>
