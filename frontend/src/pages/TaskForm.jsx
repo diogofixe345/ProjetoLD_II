@@ -2,6 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button, TextInput, Callout } from '@tremor/react';
 
+// Função de validação de data
+const validateDate = (dateString) => {
+    // Regex para YYYY-MM-DD, garantindo 4 dígitos no ano
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regex.test(dateString)) {
+        return false;
+    }
+    // Verifica se é uma data válida (ex: não permite 2023-02-30)
+    const date = new Date(dateString + 'T00:00:00'); 
+    return date.toISOString().startsWith(dateString);
+};
+
 const TaskForm = ({ onTaskCreated = () => {}, gestorId }) => {
     const navigate = useNavigate();
     const [taskData, setTaskData] = useState({
@@ -9,7 +21,7 @@ const TaskForm = ({ onTaskCreated = () => {}, gestorId }) => {
         IdProgramador: 1, 
         OrdemExecucao: 1,
         DataPrevistaInicio: '', 
-        DataPrevistaFim: '',    
+        DataPrevistaFim: '',    
         IdTipoTarefa: 1, 
         StoryPoints: 1
     });
@@ -26,8 +38,16 @@ const TaskForm = ({ onTaskCreated = () => {}, gestorId }) => {
         setError('');
         setSuccess('');
 
-        if (!taskData.DataPrevistaInicio || !taskData.DataPrevistaFim) {
-            return setError("Por favor, selecione as datas de início e fim.");
+        const { DataPrevistaInicio, DataPrevistaFim } = taskData;
+        
+        // 1. Validação de Formato (4 dígitos no ano)
+        if (!validateDate(DataPrevistaInicio) || !validateDate(DataPrevistaFim)) {
+            return setError("O formato das datas deve ser YYYY-MM-DD e o ano deve ter 4 dígitos. Por favor, insira datas válidas.");
+        }
+
+        // 2. Validação de Lógica (Início antes do Fim)
+        if (new Date(DataPrevistaInicio) > new Date(DataPrevistaFim)) {
+            return setError("A Data Prevista de Início não pode ser posterior à Data Prevista de Fim.");
         }
 
         const bodyToSend = {
@@ -55,6 +75,7 @@ const TaskForm = ({ onTaskCreated = () => {}, gestorId }) => {
                     navigate('/');
                 }, 1000);
             } else {
+                // Se o erro for 401, a mensagem do backend será mais clara (Não autenticado)
                 setError(data.message || "Erro desconhecido ao criar tarefa.");
             }
         } catch (error) {

@@ -119,16 +119,6 @@ function Tasks() {
                                 <p>Data Fim Prevista: {t.DataPrevistaFim.slice(0, 10).split('-').reverse().join('/')}</p>
                                 <p className="text-xs text-gray-500">SP: {t.StoryPoints}</p>
                                 
-                                {(coluna === 'ToDo' || coluna === 'Doing') && (
-                                    <Button
-                                        onClick={() => moverTarefa(t.Id, coluna)}
-                                        className="mt-3 w-full"
-                                        color={coluna === 'ToDo' ? 'blue' : 'green'}
-                                        size="xs" 
-                                    >
-                                        Mover para {coluna === 'ToDo' ? 'Doing' : 'Done'}
-                                    </Button>
-                                )}
                                 {isGestor && (
                                     <Button
                                          onClick={() => navigate(`/edittask/${t.Id}`)}
@@ -139,6 +129,17 @@ function Tasks() {
                                        Editar
                                      </Button>
                                 )}
+                                {(coluna === 'ToDo' || coluna === 'Doing') && (
+                                    <Button
+                                        onClick={() => moverTarefa(t.Id, coluna)}
+                                        className="mt-3 w-full"
+                                        color={coluna === 'ToDo' ? 'blue' : 'green'}
+                                        size="xs" 
+                                    >
+                                        Mover para {coluna === 'ToDo' ? 'Doing' : 'Done'}
+                                    </Button>
+                                )}
+                            
                                 {coluna === 'Done' && isGestor && (
                                     <Button
                                         onClick={() => eliminarTarefa(t.Id)}
