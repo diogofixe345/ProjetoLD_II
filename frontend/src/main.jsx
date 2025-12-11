@@ -9,6 +9,12 @@ import Conta from './pages/Conta';
 import Tasks from './pages/Tasks';
 import TaskForm from './pages/TaskForm';
 import EditTask from './pages/EditTask';
+import ManageTeam from './pages/ManageTeam';
+import CompletedTasks from './pages/CompletedTasks';
+import ManagerHistory from './pages/ManagerHistory';
+import ManagerActiveTasks from './pages/ManagerActiveTasks';
+import ManagerForecast from './pages/ManagerForecast';
+import ManageTaskTypes from './pages/ManageTaskTypes';
 import './index.css'
 
 const root = document.getElementById('root');
@@ -26,7 +32,15 @@ rootElement.render(
         <Route path='/conta' element={<Conta/>}/>
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/taskform" element={<TaskForm />} />
-         <Route path="/edittask/:id" element={<EditTask />} />
+        <Route path="/edittask/:id" element={<EditTask />} />
+        <Route path="/equipa" element={<ManageTeam />} />
+        <Route path="/task/:id" element={<TaskForm />} />
+        <Route path='/history' element={<CompletedTasks/>}></Route>
+        <Route path="/manager-history" element={<ManagerHistory />} />
+        <Route path="/manager-active-tasks" element={<ManagerActiveTasks />} />
+        <Route path="/manager-forecast" element={<ManagerForecast />} />
+        <Route path="/manage-types" element={<ManageTaskTypes />} />
+
       </Routes>
     </Router>
   </React.StrictMode>

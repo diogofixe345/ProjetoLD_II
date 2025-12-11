@@ -1,31 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TextInput, Button, Callout, Select, SelectItem } from '@tremor/react';
+import { TextInput, Button, Select, SelectItem } from '@tremor/react';
+import toast, { Toaster } from 'react-hot-toast';
 
 function Register() {
   const [Nome, setNome] = useState('');
   const [Username, setUsername] = useState('');
   const [Password, setPassword] = useState('');
-  const [Papel, setPapel] = useState('Programador');
-  const [error, setError] = useState('');
+  const [Papel, setPapel] = useState('Gestor');
+  
+  const [NivelExperiencia, setNivelExperiencia] = useState('');
+  const [Departamento, setDepartamento] = useState('');
+
   const [emptyFieldsError, setEmptyFieldsError] = useState(false);
-  const [PasswordError, setPasswordError] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [passwordInvalid, setPasswordInvalid] = useState(false);
+  
+  const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loggedInUser = localStorage.getItem('user');
-    if (loggedInUser) {
-      setIsLoggedIn(true);
+    const userStored = localStorage.getItem('utilizador');
+    if (userStored) {
+      const user = JSON.parse(userStored);
+      setCurrentUser(user);
+      if (user.Papel === 'Programador') {
+        navigate('/');
+      }
     }
-  }, []);
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate('/');
-    }
-  }, [isLoggedIn, navigate]);
-
+  }, [navigate]);
 
   const validatePassword = (password) => {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
@@ -35,122 +37,124 @@ function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setEmptyFieldsError(false);
-    setPasswordError('');
-    setError('');
+    setPasswordInvalid(false);
 
     if (!Nome || !Username || !Password || !Papel) {
       setEmptyFieldsError(true);
+      toast.error("Por favor, preencha todos os campos obrigatórios.");
       return;
     }
 
+    if (Papel === 'Programador' && !NivelExperiencia) {
+      toast.error("Selecione o nível de experiência.");
+      return;
+    }
+    if (Papel === 'Gestor' && !Departamento) {
+      setEmptyFieldsError(true); 
+      toast.error("Preencha o departamento.");
+      return;
+    }
 
     if (!validatePassword(Password)) {
-      setPasswordError('A senha deve conter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.');
+      setPasswordInvalid(true);
+      toast.error('A senha deve ter 8+ caracteres, maiúscula, minúscula, número e símbolo.');
       return;
     }
+
+    const loadingToast = toast.loading('A registar...');
 
     try {
       const response = await fetch('http://localhost:3000/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ Nome, Username, Password, Papel }),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', 
+        body: JSON.stringify({ 
+            Nome, 
+            Username, 
+            Password, 
+            Papel,
+            NivelExperiencia: Papel === 'Programador' ? NivelExperiencia : null,
+            Departamento: Papel === 'Gestor' ? Departamento : null 
+        }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        navigate('/');
+        toast.success(data.message, { id: loadingToast });
+        
+        if (!currentUser) {
+            setTimeout(() => navigate('/login'), 1500);
+        } else {
+            setNome(''); setUsername(''); setPassword(''); 
+            setNivelExperiencia(''); setDepartamento('');
+        }
       } else {
-        setError(data.message || 'Erro no registo.');
+        toast.error(data.message || 'Erro no registo.', { id: loadingToast });
       }
     } catch (error) {
-      console.error('Erro durante o registo:', error);
-      setError('Erro ao fazer registo.');
+      console.error('Erro:', error);
+      toast.error('Erro de conexão com o servidor.', { id: loadingToast });
     }
   };
 
+  const podeCriarProgramador = currentUser && currentUser.Papel === 'Gestor';
+
   return (
     <form onSubmit={handleRegister}>
-      <div className='mt-14 mx-96'>
-        <h2 className='mb-9 text-4xl'>Registo</h2>
+      <div className='mt-14 mx-96 pb-20'>
+        <Toaster position="top-center" />
+        
+        <h2 className='mb-9 text-4xl'>
+            {currentUser ? 'Criar Novo Utilizador' : 'Registo de Gestor'}
+        </h2>
 
-        <div className='mb-1.5'>
-          <label htmlFor="nome">Nome <span className="text-red-500">*</span></label>
-        </div>
-        <TextInput
-          error={emptyFieldsError && !Nome}
-          placeholder="Nome"
-          value={Nome}
-          onChange={(e) => setNome(e.target.value)}
-        />
-        {emptyFieldsError && !Nome && (
-          <Callout color="red" className='mt-2'>
-            Por favor, preencha o campo Nome.
-          </Callout>
-        )}
+        <div className='mb-1.5'><label>Nome <span className="text-red-500">*</span></label></div>
+        <TextInput error={emptyFieldsError && !Nome} placeholder="Nome" value={Nome} onChange={(e) => setNome(e.target.value)} />
 
-        <div className='mt-3 mb-1.5'>
-          <label htmlFor="username">Username <span className="text-red-500">*</span></label>
-        </div>
-        <TextInput
-          error={emptyFieldsError && !Username}
-          placeholder="Username"
-          value={Username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        {emptyFieldsError && !Username && (
-          <Callout color="red" className='mt-2'>
-            Por favor, preencha o campo Username.
-          </Callout>
-        )}
+        <div className='mt-3 mb-1.5'><label>Username <span className="text-red-500">*</span></label></div>
+        <TextInput error={emptyFieldsError && !Username} placeholder="Username" value={Username} onChange={(e) => setUsername(e.target.value)} />
 
-        <div className='mt-3 mb-1.5'>
-          <label htmlFor="papel">Registar como <span className="text-red-500">*</span></label>
-        </div>
-        <Select 
-          value={Papel} 
-          onValueChange={setPapel} 
-          placeholder="Selecione o seu papel"
-          className="w-full"
-        >
-          <SelectItem value="Programador">Programador</SelectItem>
+        <div className='mt-3 mb-1.5'><label>Papel <span className="text-red-500">*</span></label></div>
+        <Select value={Papel} onValueChange={setPapel} disabled={!podeCriarProgramador}>
           <SelectItem value="Gestor">Gestor</SelectItem>
+          {podeCriarProgramador && <SelectItem value="Programador">Programador</SelectItem>}
         </Select>
 
-
-        <div className='mt-3 mb-1.5'>
-          <label htmlFor="password">Password <span className="text-red-500">*</span></label>
-        </div>
-        <TextInput
-          error={emptyFieldsError && !Password || !!PasswordError}
-          placeholder="Password"
-          type="password"
-          value={Password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {emptyFieldsError && !Password && (
-          <Callout color="red" className='mt-2'>
-            Por favor, preencha o campo Password.
-          </Callout>
-        )}
-        {PasswordError && (
-          <Callout color="red" className='mt-2'>
-            {PasswordError}
-          </Callout>
+        {Papel === 'Gestor' && (
+            <div className="mt-3">
+                <div className='mb-1.5'><label>Departamento <span className="text-red-500">*</span></label></div>
+                <Select 
+                    value={Departamento} 
+                    onValueChange={setDepartamento}
+                    placeholder="Selecione o departamento"
+                    error={emptyFieldsError && !Departamento} 
+                >
+                    <SelectItem value="IT">IT</SelectItem>
+                    <SelectItem value="Marketing">Marketing</SelectItem>
+                    <SelectItem value="Administração">Administração</SelectItem>
+                </Select>
+            </div>
         )}
 
-        {error && (
-          <Callout color="red" className='mt-5'>
-            {error}
-          </Callout>
+        {Papel === 'Programador' && (
+            <div className="mt-3 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div className='mb-1.5'><label className="text-blue-900 font-semibold">Nível de Experiência <span className="text-red-500">*</span></label></div>
+                <Select value={NivelExperiencia} onValueChange={setNivelExperiencia}>
+                    <SelectItem value="Junior">Júnior</SelectItem>
+                    <SelectItem value="Senior">Sénior</SelectItem>
+                </Select>
+            </div>
         )}
+
+        <div className='mt-3 mb-1.5'><label>Password <span className="text-red-500">*</span></label></div>
+        <TextInput error={emptyFieldsError && !Password || passwordInvalid} placeholder="Password" type="password" value={Password} onChange={(e) => setPassword(e.target.value)} />
 
         <div className='mt-5'>
-          <Button className="bg-yellow-400 hover:bg-yellow-500 font-semibold border border-yellow-500 rounded-xl shadow-md transition-all duration-200" type='submit'>Registo</Button>
+          <Button className="bg-yellow-400 hover:bg-yellow-500 font-semibold border border-yellow-500 rounded-xl shadow-md" type='submit'>
+            {currentUser ? 'Adicionar Utilizador' : 'Registar'}
+          </Button>
         </div>
-
       </div>
     </form>
   );
