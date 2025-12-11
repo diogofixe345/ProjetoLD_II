@@ -1,8 +1,24 @@
-# React + Vite
+# ProjetoLD_II - Guia Completo de Instalação
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### 1. Instalar o Node.js
 
-Currently, two official plugins are available:
+1.  Acede ao site oficial: [https://nodejs.org/].
+2.  Transfere a versão **LTS** (Long Term Support) – é a mais estável.
+3.  Executa o instalador e segue os passos.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+### 2. Instalar o MySQL (Base de Dados)
+
+1.  Acede a: [https://dev.mysql.com/downloads/installer/].
+2.  Transfere o **MySQL Installer** (versão web ou completa).
+3.  Finaliza a instalação e garante que o "MySQL Server" está a correr.
+
+1.  Acede a: [https://git-scm.com/downloads].
+2.  Transfere a versão para o teu sistema operativo e instala (opções padrão).
+
+
+### 3. Clonar o Repositório
+Abre o terminal na pasta onde queres guardar o projeto e executa:
+
+git clone [https://github.com/teu-usuario/ProjetoLD_II.git]
+cd ProjetoLD_II
